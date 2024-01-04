@@ -1,0 +1,169 @@
+---
+- name: Config on BR_BD1
+  hosts: BR_BD1
+  connection: network_cli
+  gather_facts: false 
+  tasks: 
+#Set IP address va cau hinh cac port 
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents:
+          - interface e0/1 
+        lines:
+          - no shut
+          - ip address 192.168.4.9 255.255.255.248
+          - ip nat inside 
+          - ip ospf 1 area 4 
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut
+          - ip address 192.168.4.1 255.255.255.248
+          - ip nat inside 
+          - ip ospf 1 area 4
+    - name: Set IP on interface e0/3 
+      ios_config: 
+        parents:
+          - interface e0/3
+        lines:
+          - no shut
+          - ip address 10.10.4.2 255.255.255.0
+          - ip nat outside 
+#Set OSPF routing 
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        parents:
+          - router ospf 1 
+        lines:
+          - redistribute static subnets
+          - default-information originate
+#Set GRE Tunnel
+    - name: Config tunnel 
+      ios_config:
+        parents:
+          - interface {{ item.intTunnel}}
+        lines:
+          - ip address 172.16.{{ item.number }}.1 255.255.255.252
+          - tunnel mode gre ip
+          - tunnel source 10.10.4.2 
+          - tunnel destination 10.10.{{ item.areanum }}.2
+      with_items:
+        - { intTunnel: Tunnel2, number: 2, areanum: 1}
+        - { intTunnel: Tunnel3, number: 3, areanum: 2} 
+#Set ACL, NAT va Static route
+    - name: Static route 
+      ios_config:
+        lines: 
+          - access-list 4 permit any
+          - ip nat inside source list 4 interface Ethernet0/3 overload
+          - ip route 0.0.0.0 0.0.0.0 10.10.4.1
+          - ip route 192.168.1.0 255.255.255.0 172.16.2.2 120
+          - ip route 192.168.2.0 255.255.255.0 172.16.3.2 120
+          
+
+#Cau hinh tren BR_HCM2
+- name: Config on BR_BD2
+  hosts: BR_BD2 
+  connection: network_cli
+  gather_facts: false 
+  tasks: 
+#Set IP address va cau hinh cac port 
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents:
+          - interface e0/1 
+        lines:
+          - no shut
+          - ip address 192.168.4.17 255.255.255.248
+          - ip ospf 1 area 4
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut
+          - ip address 172.16.123.4 255.255.255.0
+          - ip ospf 1 area 0
+    - name: Set IP on interface e0/3 
+      ios_config: 
+        parents:
+          - interface e0/3
+        lines:
+          - no shut
+          - ip address 192.168.4.2 255.255.255.248
+          - ip osp 1 area 4
+#Set OSPF routing
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        lines:
+          - router ospf 1 
+        
+
+#Cau hinh tren SW_HCM
+- name: Config on SW_BD
+  hosts: SW_BD
+  connection: network_cli
+  gather_facts: false 
+  tasks: 
+#Set IP address va cau hinh cac port
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents: 
+          - interface e0/1 
+        lines:
+          - no switchport
+          - ip address  192.168.4.10 255.255.255.248 
+          - ip ospf 1 area 4 
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents: 
+          - interface e0/2
+        lines:
+          - no switchport
+          - ip address  192.168.4.18 255.255.255.248
+          - ip ospf 1 area 4
+    - name: Set IP on interface e0/3
+      ios_config:
+        parents:
+          - interface e0/3
+        lines:
+          - no switchport
+          - ip address 10.0.0.1 255.255.255.0
+    - name: Set IP on interface e1/0
+      ios_config:
+        parents:
+          - interface e1/0
+        lines:
+         - no switchport
+         - ip address 10.0.1.1 255.255.255.0
+#Cau hinh access vlan         
+    - name: ACCESS VLAN
+      ios_config: 
+        parents: 
+          - interface {{ item.int }}
+        lines: 
+          - switchport mode access 
+          - switchport access vlan {{ item.vlan }}
+      with_items: 
+        - { int: "ethernet0/3", vlan: 30}
+        - { int: "ethernet1/0", vlan: 40}
+#Set DHCP server
+    - name: Config DHCP on SW_BD
+      ios_config: 
+        parents:
+          - ip dhcp pool {{ item.name }}
+        lines:
+          - network 10.0.{{item.vlan}}.0 255.255.255.0 
+          - default-router 10.0.{{item.vlan}}.1
+      with_items:
+        - { name: "LAN_30", vlan: 0}
+        - { name: "LAN_40", vlan: 1}
+#Set OSPF routing
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        parents:
+          - router ospf 1 
+        lines:
+          - redistribute connected subnets

@@ -1,0 +1,36 @@
+---
+- name: Config on R_DC2
+  hosts: R_DC2
+  connection: network_cli
+  gather_facts: false 
+  tasks: 
+#Set IP address va cau hinh tren cac port 
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents:
+          - interface e0/1 
+        lines:
+          - no shut
+          - ip address 192.168.1.17 255.255.255.248
+          - ip ospf 1 area 1   
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents:
+          - interface e0/2
+        lines:
+          - no shut
+          - ip address 172.16.123.1 255.255.255.0
+          - ip ospf 1 area 0 
+    - name: Set IP on interface e0/3 
+      ios_config: 
+        parents:
+          - interface e0/3
+        lines:
+          - no shut
+          - ip address 192.168.1.2 255.255.255.248
+          - ip ospf 1 area 1
+#Set OSPF routing 
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        lines:
+          - router ospf 1 

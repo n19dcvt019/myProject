@@ -1,0 +1,63 @@
+---
+- name: Config on SW_HCM
+  hosts: SW_HCM
+  connection: network_cli
+  gather_facts: false 
+  tasks: 
+#Set IP address va cau hinh cac port
+    - name: Set IP on interface e0/1 
+      ios_config: 
+        parents: 
+          - interface e0/1 
+        lines:
+          - no switchport
+          - ip address  192.168.3.10 255.255.255.248 
+          - ip ospf 1 area 3
+    - name: Set IP on interface e0/2
+      ios_config: 
+        parents: 
+          - interface e0/2
+        lines:
+          - no switchport
+          - ip address  192.168.3.18 255.255.255.248
+          - ip ospf 1 area 3
+#Config interface vlan 
+    - name: Config interface vlan 
+      ios_config:
+        parents:
+          - interface vlan {{ item.vlanNumber }}
+        lines:
+          - no shut
+          - ip address 10.0.{{ item.ipAddress }}.1 255.255.255.0 
+      with_items: 
+        - { vlanNumber: 30, ipAddress: 0}
+        - { vlanNumber: 40, ipAddress: 1}
+#Set access vlan cho port 
+    - name: Access vlan 
+      ios_config:
+        parents:
+          - interface {{ item.int }}
+        lines:
+          - switchport mode access
+          - switchport access vlan {{ item.vlanNumber }}
+      with_items: 
+        - { int: "e0/3", vlanNumber: 30 }   
+        - { int: "e1/0", vlanNumber: 40 }
+#Set DHCP server
+    - name: Config DHCP on SW_HCM 
+      ios_config: 
+        parents:
+          - ip dhcp pool {{ item.name }}
+        lines:
+          - network 10.0.{{item.vlan}}.0 255.255.255.0 
+          - default-router 10.0.{{item.vlan}}.1
+      with_items:
+        - { name: "LAN_30", vlan: 0}
+        - { name: "LAN_40", vlan: 1}
+#Set OSPF routing
+    - name: Config OSPF with Process ID 1
+      ios_config:
+        parents:
+          - router ospf 1 
+        lines:
+          - redistribute connected subnets 
