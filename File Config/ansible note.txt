@@ -1,0 +1,26 @@
+
+==> Uncomment
+inventory = ./hosts  ( Points to specific host file rather than using /etc/ansible/hosts
+
+host_key_checking=False ( For purpose of learning, this disables yes/no prompt for first time connection via SSH)
+
+
+
+#Ansible Hosts File
+[leaf]   (Group, can be called by adhoc or playbooks commands)
+
+leaf1   (Hostname is DNS name for switch or server on network. Can be called by group or directly)
+
+
+
+Executing a Playbook
+1. Playbooks runs specified roles(common)
+2. Common role runs the tasks defined in tasks/main.yml
+3. Tasks build configurations from variables and templates
+3. Push configuration to switch
+
+
+Ansible Recaps
+Green = reachable
+Orange = Something changed
+Red = unreachable

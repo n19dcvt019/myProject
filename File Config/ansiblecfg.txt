@@ -1,0 +1,1 @@
+https://github.com/ansible/ansible/blob/stable-2.9/examples/hosts.yaml

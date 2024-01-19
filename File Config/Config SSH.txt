@@ -1,0 +1,28 @@
+#Config SSH for devices
+configure terminal
+ip domain-name R.local
+crypto key generate rsa 1024
+aaa new-model
+aaa authentication login default local
+aaa authorization exec default local
+ip ssh version 2
+username admin privilege 15 password 123
+line vty 0 4
+transport input ssh
+
+
+
+
+#Install Ansible on Linux
+sudo apt-add-repository ppa:ansible/ansible
+
+sudo apt update
+
+sudo apt install ansible
+
+#Chuyển tới thư mục đã cài ansible và sửa đổi file hosts – file chứa các thiết bị
+
+cd /etc/ansible
+
+sudo nano hosts
+
