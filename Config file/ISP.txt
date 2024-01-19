@@ -1,0 +1,19 @@
+Router#config t
+Enter configuration commands, one per line. End with CNTL/Z. 
+Router(config)#hostname ISP
+ISP(config)#interface Ethernet0/0
+ISP(config-if)#no shutdown
+ISP(config-if)#ip address 10.10.3.1 255.255.255.0
+ISP(config-if)#exit
+ISP(config)#interface Ethernet0/1
+ISP(config-if)#no shutdown
+ISP(config-if)#ip address 10.10.1.1 255.255.255.0
+ISP(config-if)#exit
+ISP(config)#interface Ethernet0/2
+ISP(config-if)#no shutdown
+ISP(config-if)# ip address 10.10.2.1 255.255.255.0
+ISP(config-if)#exit
+ISP(config)#interface Ethernet0/3
+ISP(config-if)#no shutdown
+ISP(config-if)#ip address 10.10.4.1 255.255.255.0
+

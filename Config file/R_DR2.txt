@@ -1,0 +1,20 @@
+int e0/0 
+  no shut
+  ip add 192.168.22.22 255.255.255.0
+!
+interface Ethernet0/1
+ no shut
+ ip address 192.168.2.17 255.255.255.248
+ ip ospf 1 area 2
+!
+interface Ethernet0/2
+ no shut
+ ip address 172.16.123.2 255.255.255.0
+ ip ospf 1 area 0
+!
+interface Ethernet0/3
+ no shut
+ ip address 192.168.2.2 255.255.255.248
+ ip ospf 1 area 2
+!
+router ospf 1

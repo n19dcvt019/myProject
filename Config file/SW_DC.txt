@@ -1,0 +1,25 @@
+!
+int e0/0
+ no sw
+ ip add 192.168.22.13 255.255.255.0
+!
+interface Ethernet1/0
+ no switchport
+ ip address 192.168.12.1 255.255.255.252
+!
+interface Ethernet0/2
+ no sw
+ ip address 192.168.1.10 255.255.255.248
+ ip ospf 1 area 1
+!
+interface Ethernet0/3
+ no sw
+ ip address 192.168.1.18 255.255.255.248
+ ip ospf 1 area 1
+!
+interface Ethernet0/1
+ no sw
+ ip address 192.168.1.254 255.255.255.248
+!
+router ospf 1
+ redistribute connected subnets

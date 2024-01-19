@@ -1,0 +1,52 @@
+interface Ethernet0/0
+ no shut
+ ip address 192.168.22.41 255.255.255.0
+!
+interface Ethernet0/1
+ no shut
+ ip address 192.168.4.9 255.255.255.248
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf 1 area 4
+!
+interface Ethernet0/2
+ no shut
+ ip address 192.168.4.1 255.255.255.248
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf 1 area 4
+!
+interface Ethernet0/3
+ no shut
+ ip address 10.10.4.2 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+ 
+!
+router ospf 1
+ redistribute static subnets
+ default-information originate
+
+
+!
+interface Tunnel2
+ ip address 172.16.2.1 255.255.255.0
+ tunnel mode gre ip
+ tunnel source 10.10.4.2
+ tunnel destination 10.10.1.2
+!
+interface Tunnel3
+ ip address 172.16.3.1 255.255.255.0
+ tunnel mode gre ip
+ tunnel source 10.10.4.2
+ tunnel destination 10.10.2.2
+
+ip nat inside source list 4 interface Ethernet0/3 overload
+ip route 0.0.0.0 0.0.0.0 10.10.4.1
+ip route 192.168.1.0 255.255.255.0 172.16.2.2 120
+ip route 192.168.2.0 255.255.255.0 172.16.3.2 120
+!
+!
+
+access-list 4 permit any
+

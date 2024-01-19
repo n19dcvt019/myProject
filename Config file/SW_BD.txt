@@ -1,0 +1,45 @@
+!
+interface Ethernet0/0
+ no switchport
+ ip address 192.168.22.43 255.255.255.0
+!
+interface Ethernet0/1
+ no switchport
+ ip address 192.168.4.10 255.255.255.248
+ ip ospf 1 area 4
+!
+interface Ethernet0/2
+ no switchport
+ ip address 192.168.4.18 255.255.255.248
+ ip ospf 1 area 4
+
+!
+interface Ethernet0/3
+ switchport access vlan 40
+ switchport mode access
+ 
+!
+interface Ethernet1/0
+ switchport access vlan 30
+ switchport mode access
+ !
+
+!
+interface Vlan30
+ ip address 10.0.2.1 255.255.255.0
+!
+interface Vlan40
+ ip address 10.0.3.1 255.255.255.0
+
+router ospf 1
+ redistribute connected subnets
+ 
+!
+ip dhcp pool LAN_30
+ network 10.0.2.0 255.255.255.0
+ default-router 10.0.2.1 
+!         
+ip dhcp pool LAN_40
+ network 10.0.3.0 255.255.255.0
+ default-router 10.0.3.1 
+!
