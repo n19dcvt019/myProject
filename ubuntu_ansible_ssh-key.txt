@@ -1,0 +1,4 @@
+Khi cài đặt ansible và chạy ansible-playbook có thể bị lỗi trên ubuntu OS
+
+HostkeyAlgorithms ssh-dss,ssh-rsa
+KexAlgorithms +diffie-hellman-group1-sha1
